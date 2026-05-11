@@ -6,6 +6,10 @@ const header = document.querySelector(".header");
 
 window.addEventListener("scroll", () => {
 
+  if(!header){
+    return;
+  }
+
   if(window.scrollY > 50){
     header.classList.add("active");
   }
@@ -20,20 +24,84 @@ window.addEventListener("scroll", () => {
 
 const menuBtn = document.querySelector(".menu-btn");
 const navLinks = document.querySelector(".nav-links");
+const navBackdrop = document.querySelector(".nav-backdrop");
 
-menuBtn.addEventListener("click", () => {
+function setMobileNavOpen(isOpen){
 
-  navLinks.classList.toggle("active");
-
-  if(navLinks.classList.contains("active")){
-    menuBtn.innerHTML = `<i class="ri-close-line"></i>`;
+  if(!navLinks || !menuBtn){
+    return;
   }
 
-  else{
-    menuBtn.innerHTML = `<i class="ri-menu-3-line"></i>`;
+  navLinks.classList.toggle("active", isOpen);
+  document.body.classList.toggle("nav-open", isOpen);
+
+  if(navBackdrop){
+    navBackdrop.classList.toggle("active", isOpen);
+    navBackdrop.setAttribute("aria-hidden", isOpen ? "false" : "true");
   }
 
-});
+  menuBtn.innerHTML = isOpen
+    ? `<i class="ri-close-line"></i>`
+    : `<i class="ri-menu-3-line"></i>`;
+
+  menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+
+}
+
+if(menuBtn && navLinks){
+
+  menuBtn.setAttribute("aria-label", "Open menu");
+  menuBtn.setAttribute("aria-expanded", "false");
+
+  menuBtn.addEventListener("click", () => {
+
+    const willOpen = !navLinks.classList.contains("active");
+    setMobileNavOpen(willOpen);
+    menuBtn.setAttribute("aria-label", willOpen ? "Close menu" : "Open menu");
+
+  });
+
+  navLinks.querySelectorAll("a").forEach((link) => {
+
+    link.addEventListener("click", () => {
+
+      setMobileNavOpen(false);
+      menuBtn.setAttribute("aria-label", "Open menu");
+
+    });
+
+  });
+
+  window.addEventListener("resize", () => {
+
+    if(window.innerWidth > 900 && navLinks.classList.contains("active")){
+      setMobileNavOpen(false);
+      menuBtn.setAttribute("aria-label", "Open menu");
+    }
+
+  });
+
+  window.addEventListener("keydown", (e) => {
+
+    if(e.key === "Escape" && navLinks.classList.contains("active")){
+      setMobileNavOpen(false);
+      menuBtn.setAttribute("aria-label", "Open menu");
+    }
+
+  });
+
+  if(navBackdrop){
+
+    navBackdrop.addEventListener("click", () => {
+
+      setMobileNavOpen(false);
+      menuBtn.setAttribute("aria-label", "Open menu");
+
+    });
+
+  }
+
+}
 
 /* SCROLL REVEAL EFFECT */
 
